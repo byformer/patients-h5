@@ -1,0 +1,23 @@
+<script setup lang="ts"></script>
+
+<template>
+  <div class="layout-page">home</div>
+</template>
+
+<style lang="scss" scoped>
+.layout-page {
+  :deep() {
+    .van-tabbar-item {
+      &__icon {
+        font-size: 21px;
+      }
+      &__text {
+        font-size: 11px;
+      }
+      &:not(.van-tabbar-item--active) {
+        color: var(--cp-text3);
+      }
+    }
+  }
+}
+</style>
