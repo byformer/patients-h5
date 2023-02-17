@@ -1,7 +1,13 @@
-import axios from 'axios'
+import axios, { type Method } from 'axios'
 import { showToast } from 'vant'
 import useStore from '@/stores'
+import router from '@/router'
 
+type Data<T> = {
+  code: number
+  message: string
+  data: T
+}
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间
   baseURL: 'https://consult-api.itheima.net/',
@@ -35,8 +41,28 @@ instance.interceptors.response.use(
   },
   (err) => {
     // TODO 5. 处理401错误
+    if (err.response.status === 401) {
+      const { user } = useStore()
+      user.delUser()
+      // 跳转登录
+      router.push({
+        path: '/login',
+        query: { returnUrl: router.currentRoute.value?.fullPath }
+      })
+    }
     return Promise.reject(err)
   }
 )
 
-export default instance
+const request = <T>(
+  url: string,
+  method: string = 'get',
+  submitData: Object
+) => {
+  return instance.request<T, Data<T>>({
+    url,
+    method,
+    [method.toLowerCase() === 'get' ? 'params' : 'data']: submitData
+  })
+}
+export { instance, request }
