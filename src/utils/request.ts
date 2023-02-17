@@ -8,9 +8,10 @@ type Data<T> = {
   message: string
   data: T
 }
+const baseURL = 'https://consult-api.itheima.net/'
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间
-  baseURL: 'https://consult-api.itheima.net/',
+  baseURL,
   timeout: 5000
 })
 
@@ -57,7 +58,7 @@ instance.interceptors.response.use(
 const request = <T>(
   url: string,
   method: string = 'get',
-  submitData: Object
+  submitData?: Object
 ) => {
   return instance.request<T, Data<T>>({
     url,
@@ -65,4 +66,4 @@ const request = <T>(
     [method.toLowerCase() === 'get' ? 'params' : 'data']: submitData
   })
 }
-export { instance, request }
+export { baseURL, instance, request }
