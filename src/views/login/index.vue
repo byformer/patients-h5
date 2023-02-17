@@ -1,10 +1,28 @@
 <script setup lang="ts" name="Login">
 import { ref } from 'vue'
+import { mobileRules, passwordeRules } from '@/utils/rules'
+import { showToast, showSuccessToast } from 'vant'
+import { loginByPassword } from '@/services/user'
+import useStore from '@/stores'
+import router from '@/router'
+import { useRoute } from 'vue-router'
 const agree = ref(false)
 const show = ref(false)
+const { user } = useStore()
+const route = useRoute()
 // 存储表单数据
-const mobile = ref('')
+const mobile = ref('13230000001')
 const password = ref('')
+
+const login = async () => {
+  //  当表单效验后出发 submit 时间， 触发这个函数
+  if (!agree.value) return showToast('请勾选协议')
+  const res = await loginByPassword(mobile.value, password.value)
+  //   成功
+  user.setUser(res.data)
+  router.replace((route.query.returnUrl as string) || '/user')
+  showSuccessToast('登录成功')
+}
 </script>
 <template>
   <div class="login-page">
@@ -22,16 +40,20 @@ const password = ref('')
     </div>
   </div>
   <!-- form表单 -->
-  <van-form autocomplete="off">
+  <van-form autocomplete="off" @submit="login">
     <van-field
       v-model="mobile"
       type="text"
       placeholder="请输入手机号"
+      :rules="mobileRules"
+      maxlength="11"
     ></van-field>
     <van-field
       v-model="password"
+      :rules="passwordeRules"
       :type="show ? 'text' : 'password'"
       placeholder="请输入密码"
+      maxlength="24"
     >
       <template #button>
         <cp-icon
@@ -50,7 +72,9 @@ const password = ref('')
       </van-checkbox>
     </div>
     <div class="cp-cell">
-      <van-button block round type="primary">登 录</van-button>
+      <van-button native-type="submit" block round type="primary"
+        >登 录</van-button
+      >
     </div>
     <div class="cp-cell">
       <a href="javascript:;">忘记密码？</a>
