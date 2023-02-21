@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getPatientList } from '@/services/user'
 import type { Patient } from '@/types/user'
+import { Popup } from 'vant'
 import { ref, onMounted } from 'vue'
 const list = ref<Patient[]>([])
 const getList = async () => {
@@ -10,6 +11,25 @@ const getList = async () => {
 onMounted(() => {
   getList()
 })
+const options = [
+  { label: '男', value: 1 },
+  { label: '女', value: 0 }
+]
+// 表单数据
+
+// 侧边栏弹出
+const show = ref(false)
+const showPopup = () => {
+  // 重置表单
+  show.value = true
+}
+const initPatient: Patient = {
+  name: '',
+  idCard: '',
+  gender: 1,
+  defaultFlag: 0
+}
+const patient = ref<Patient>({ ...initPatient })
 </script>
 
 <template>
@@ -29,16 +49,50 @@ onMounted(() => {
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
 
-      <div class="patient-add" v-if="list.length < 6">
+      <div class="patient-add" v-if="list.length < 6" @click="showPopup">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
     </div>
+    <!-- 弹出层 -->
+    <van-popup
+      v-model:show="show"
+      position="right"
+      :style="{ width: '80%', height: '100%' }"
+    >
+      <cp-nav-bar :back="() => (show = false)" title="添加患者"></cp-nav-bar>
+      <van-form autocomplete="off" ref="form" class="popup-form">
+        <van-field
+          v-model="patient.name"
+          label="真实姓名"
+          placeholder="请输入真实姓名"
+        />
+        <van-field
+          v-model="patient.idCard"
+          label="身份证号"
+          placeholder="请输入身份证号"
+        />
+        <van-field label="性别" class="pb4">
+          <!-- 单选按钮组件 -->
+          <template #input>
+            <cpRdioBtn v-model="patient.gender" :options="options"></cpRdioBtn>
+          </template>
+        </van-field>
+        <van-field label="默认就诊人">
+          <template #input>
+            <van-checkbox v-model="patient.defaultFlag" :icon-size="18" round />
+          </template>
+        </van-field>
+      </van-form>
+    </van-popup>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.popup-form {
+  margin-top: 45px;
+}
 .patient-page {
   padding: 46px 0 80px;
 }
