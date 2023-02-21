@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { getPatientList } from '@/services/user'
+import {
+  getPatientList,
+  addPatient,
+  updatePatient,
+  deletePatient
+} from '@/services/user'
 import type { Patient } from '@/types/user'
-import { showToast } from 'vant'
+import { showConfirmDialog, showToast } from 'vant'
 import { ref, onMounted, computed } from 'vue'
 import Validator from 'id-validator'
 
@@ -21,8 +26,15 @@ const options = [
 
 // 侧边栏弹出
 const show = ref(false)
-const showPopup = () => {
-  // 重置表单
+const showPopup = (item?: Patient) => {
+  if (item) {
+    // 填充表单
+    const { id, idCard, name, gender, defaultFlag } = item
+    patient.value = { id, idCard, name, gender, defaultFlag }
+  } else {
+    // 重置表单
+    patient.value = { ...initPatient }
+  }
   show.value = true
 }
 const initPatient: Patient = {
@@ -42,7 +54,7 @@ const defaultFlag = computed({
     patient.value.defaultFlag = val ? 1 : 0
   }
 })
-const submit = () => {
+const submit = async () => {
   if (!patient.value.name) return showToast('请输入姓名')
   if (!patient.value.idCard) return showToast('请输入身份证')
   // 校验身份证号码
@@ -50,6 +62,28 @@ const submit = () => {
   if (!validate.isValid(patient.value.idCard)) return showToast('身份证不正确')
   const info = validate.getInfo(patient.value.idCard)
   if (info.sex !== patient.value.gender) return showToast('性别与身份证不符')
+
+  // 添加逻辑
+  patient.value.id
+    ? await updatePatient(patient.value)
+    : await addPatient(patient.value)
+  // 成功后
+  show.value = false
+  getList()
+  showToast(patient.value.id ? '编辑患者成功' : '添加患者成功')
+}
+
+const remove = async () => {
+  if (patient.value.id) {
+    await showConfirmDialog({
+      title: '温馨提示',
+      message: '您是否要删除该患者信息呢？'
+    })
+    await deletePatient(patient.value.id)
+    show.value = false
+    getList()
+    showToast('删除成功')
+  }
 }
 </script>
 
@@ -66,11 +100,13 @@ const submit = () => {
           <span>{{ item.genderValue }}</span>
           <span>{{ item.age }}岁</span>
         </div>
-        <div class="icon"><cp-icon name="user-edit" /></div>
+        <div class="icon">
+          <cp-icon name="user-edit" @click="showPopup(item)" />
+        </div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
 
-      <div class="patient-add" v-if="list.length < 6" @click="showPopup">
+      <div class="patient-add" v-if="list.length < 6" @click="showPopup()">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
@@ -80,11 +116,11 @@ const submit = () => {
     <van-popup
       v-model:show="show"
       position="right"
-      :style="{ width: '80%', height: '100%' }"
+      :style="{ width: '100%', height: '100%' }"
     >
       <cp-nav-bar
         :back="() => (show = false)"
-        title="添加患者"
+        :title="patient.id ? '编辑患者' : '添加患者'"
         rightText="保存"
         @click-right="submit"
       ></cp-nav-bar>
@@ -111,6 +147,9 @@ const submit = () => {
           </template>
         </van-field>
       </van-form>
+      <van-action-bar v-if="patient.id">
+        <van-action-bar-button @click="remove">删除</van-action-bar-button>
+      </van-action-bar>
     </van-popup>
   </div>
 </template>
@@ -199,5 +238,14 @@ const submit = () => {
 }
 .pb4 {
   padding-bottom: 4px;
+}
+// 底部操作栏
+.van-action-bar {
+  padding: 0 10px;
+  margin-bottom: 10px;
+  .van-button {
+    color: var(--cp-price);
+    background-color: var(--cp-bg);
+  }
 }
 </style>
