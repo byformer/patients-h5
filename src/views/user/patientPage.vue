@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { getPatientList } from '@/services/user'
 import type { Patient } from '@/types/user'
-import { Popup } from 'vant'
-import { ref, onMounted } from 'vue'
+import { showToast } from 'vant'
+import { ref, onMounted, computed } from 'vue'
+import Validator from 'id-validator'
+
 const list = ref<Patient[]>([])
 const getList = async () => {
   const res = await getPatientList()
@@ -30,6 +32,25 @@ const initPatient: Patient = {
   defaultFlag: 0
 }
 const patient = ref<Patient>({ ...initPatient })
+
+// 获取值，如果defaltflag  是1判断true或者false
+const defaultFlag = computed({
+  get() {
+    return patient.value.defaultFlag === 1
+  },
+  set(val) {
+    patient.value.defaultFlag = val ? 1 : 0
+  }
+})
+const submit = () => {
+  if (!patient.value.name) return showToast('请输入姓名')
+  if (!patient.value.idCard) return showToast('请输入身份证')
+  // 校验身份证号码
+  const validate = new Validator()
+  if (!validate.isValid(patient.value.idCard)) return showToast('身份证不正确')
+  const info = validate.getInfo(patient.value.idCard)
+  if (info.sex !== patient.value.gender) return showToast('性别与身份证不符')
+}
 </script>
 
 <template>
@@ -61,7 +82,12 @@ const patient = ref<Patient>({ ...initPatient })
       position="right"
       :style="{ width: '80%', height: '100%' }"
     >
-      <cp-nav-bar :back="() => (show = false)" title="添加患者"></cp-nav-bar>
+      <cp-nav-bar
+        :back="() => (show = false)"
+        title="添加患者"
+        rightText="保存"
+        @click-right="submit"
+      ></cp-nav-bar>
       <van-form autocomplete="off" ref="form" class="popup-form">
         <van-field
           v-model="patient.name"
@@ -81,7 +107,7 @@ const patient = ref<Patient>({ ...initPatient })
         </van-field>
         <van-field label="默认就诊人">
           <template #input>
-            <van-checkbox v-model="patient.defaultFlag" :icon-size="18" round />
+            <van-checkbox v-model="defaultFlag" :icon-size="18" round />
           </template>
         </van-field>
       </van-form>
