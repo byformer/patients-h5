@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { getAllDep } from '@/services/consult'
+import type { TopDep } from '@/types/consuit'
+import { ref, onMounted, computed } from 'vue'
 
 const active = ref(0)
+const allDep = ref<TopDep[]>([])
+onMounted(async () => {
+  const res = await getAllDep()
+  allDep.value = res.data
+})
+// 2.二级科室 依赖一级科室和当前激活的一级科室
+const subDep = computed(() => allDep.value[active.value]?.child)
 </script>
 
 <template>
@@ -9,15 +18,19 @@ const active = ref(0)
     <cp-nav-bar title="选择科室" />
     <div class="wrapper">
       <van-sidebar v-model="active">
-        <van-sidebar-item title="内科" />
-        <van-sidebar-item title="外科" />
-        <van-sidebar-item title="皮肤科" />
-        <van-sidebar-item title="骨科" />
+        <van-sidebar-item
+          v-for="item in allDep"
+          :key="item.id"
+          :title="item.name"
+        />
       </van-sidebar>
       <div class="sub-dep">
-        <router-link to="/consult/illness">科室一</router-link>
-        <router-link to="/consult/illness">科室二</router-link>
-        <router-link to="/consult/illness">科室三</router-link>
+        <router-link
+          to="/consult/illness"
+          v-for="sub in subDep"
+          :key="sub.id"
+          >{{ sub.name }}</router-link
+        >
       </div>
     </div>
   </div>

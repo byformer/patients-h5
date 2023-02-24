@@ -4,7 +4,8 @@ import type {
   KnowledgePage,
   DoctorPage,
   PageParams,
-  FollowType
+  FollowType,
+  TopDep
 } from '@/types/consuit'
 
 // 文章详情
@@ -18,3 +19,5 @@ export const getDoctorPage = (params: PageParams) =>
 export const follwTaget = (id: string | number, type: FollowType = 'doc') => {
   request('like', 'POST', { id, type })
 }
+
+export const getAllDep = () => request<TopDep[]>('dep/all')
