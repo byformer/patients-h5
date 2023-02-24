@@ -1,29 +1,17 @@
 <script lang="ts" setup>
 import type { Knowledge } from '@/types/consuit'
-import { ref } from 'vue'
-import { follwTaget } from '@/services/consult'
+import { useFollow } from '@/composable'
 defineProps<{
   item: Knowledge
 }>()
 
-const loading = ref(false)
-const follw = async (item: Knowledge) => {
-  try {
-    loading.value = true
-    await follwTaget(item.id)
-    console.log('111')
-
-    item.likeFlag = item.likeFlag === 1 ? 0 : 1
-  } finally {
-    loading.value = false
-  }
-}
+const { loading, follow } = useFollow()
 </script>
 <template>
   <div class="doctor-card">
     <van-image round :src="item.creatorAvatar" />
     <p class="name">{{ item.creatorName }}</p>
-    <p class="van-ellipsis">
+    <p class="van-ellipsis"> 
       {{ item.creatorHospatalName }} {{ item.creatorDep }}
     </p>
     <p>{{ item.creatorTitles }}</p>
@@ -32,7 +20,7 @@ const follw = async (item: Knowledge) => {
       size="small"
       type="primary"
       :loading="loading"
-      @click="follw(item)"
+      @click="follow(item)"
       >{{ item.likeFlag === 1 ? '已关注' : '+ 关注' }}</van-button
     >
   </div>

@@ -15,6 +15,6 @@ export const getKnowledgePage = (params: KnowledgeParams) =>
 export const getDoctorPage = (params: PageParams) =>
   request<DoctorPage>('patient/home/knowledge', 'GET', params)
 // 关注目标
-export const follwTaget = (id: string | number, type?: FollowType) => {
+export const follwTaget = (id: string | number, type: FollowType = 'doc') => {
   request('like', 'POST', { id, type })
 }
