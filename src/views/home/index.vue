@@ -3,8 +3,11 @@ import { ref } from 'vue'
 import KnowledgeList from './components/KnowledgeList.vue'
 import type { knowledgeType } from '@/types/consuit'
 import FollowDoctor from './components/FollowDoctor.vue'
+import { ConsultType } from '@/enums'
+import useStore from '@/stores'
 // active 的值是 tab 的索引
 const active = ref<knowledgeType>('recommend')
+const { consult } = useStore()
 </script>
 
 <template>
@@ -29,7 +32,11 @@ const active = ref<knowledgeType>('recommend')
           </router-link>
         </van-col>
         <van-col span="8">
-          <router-link to="/consult/fast" class="nav">
+          <router-link
+            to="/consult/fast"
+            class="nav"
+            @click="consult.setType(ConsultType.Fast)"
+          >
             <cp-icon name="home-graphic"></cp-icon>
             <p class="title">极速问诊</p>
             <p class="desc">20s医生极速回复</p>

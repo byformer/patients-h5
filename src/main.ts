@@ -6,6 +6,7 @@ import 'vant/lib/index.css'
 import './styles/main.scss'
 import persist from 'pinia-plugin-persistedstate'
 import 'virtual:svg-icons-register'
+import '@/enums'
 const app = createApp(App)
 
 app.use(createPinia().use(persist))
