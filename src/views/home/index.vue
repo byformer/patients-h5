@@ -1,4 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import KnowledgeList from './components/KnowledgeList.vue'
+import type { knowledgeType } from '@/types/consuit'
+import FollowDoctor from './components/FollowDoctor.vue'
+// active 的值是 tab 的索引
+const active = ref<knowledgeType>('recommend')
+</script>
 
 <template>
   <div class="home-page">
@@ -74,6 +81,22 @@
         </van-swipe-item>
       </van-swipe>
     </div>
+    <!-- tab文章 -->
+    <van-tabs shrink sticky v-model:actie="active">
+      <van-tab title="关注" name="like">
+        <!-- 推荐医生 -->
+        <follow-doctor></follow-doctor>
+        <!-- 关注医生的编写的文章 -->
+        <knowledge-list type="like" />
+      </van-tab>
+      <van-tab title="推荐" name="recommend"
+        ><knowledge-list type="recommend"
+      /></van-tab>
+      <van-tab title="减脂" name="fatReduction"
+        ><knowledge-list type="fatReduction"
+      /></van-tab>
+      <van-tab title="饮食" name="food"><knowledge-list type="food" /></van-tab>
+    </van-tabs>
   </div>
 </template>
 
