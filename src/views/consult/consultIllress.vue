@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { ConsultIllness } from '@/types/consuit'
+import { ref, computed, onMounted } from 'vue'
+import type { ConsultIllness, Image } from '@/types/consuit'
 import { uploadImage } from '@/services/consult'
 import { IllnessTime } from '@/enums'
+import { useRouter } from 'vue-router'
+
 import type {
   UploaderAfterRead,
   UploaderFileListItem
 } from 'vant/lib/uploader/types'
+import { showConfirmDialog, showToast } from 'vant'
+import useStore from '@/stores'
+
 // 表单需要依赖的数据
 const form = ref<ConsultIllness>({
   illnessDesc: '',
@@ -28,7 +33,7 @@ const flagOptions = [
 ]
 
 // 上传图片相关
-const fileList = ref([])
+const fileList = ref<Image[]>([])
 const onAfterRead: UploaderAfterRead = (item) => {
   // 选择一个图就是 item 选择多个图就是item[] ,我们是一个图,而且file可能不存在
   if (Array.isArray(item)) return
@@ -58,6 +63,44 @@ const onDeleteImg = (item: UploaderFileListItem) => {
     (pic) => pic.url !== item.url
   )
 }
+// 保存数据相关逻辑
+const disabled = computed(() => {
+  return !(
+    form.value.illnessDesc &&
+    form.value.illnessTime &&
+    form.value.consultFlag !== undefined
+  )
+})
+const { consult } = useStore()
+const router = useRouter()
+const next = () => {
+  if (!form.value.illnessDesc) return showToast('请输入病情描述')
+  if (!form.value.illnessTime === undefined) return showToast('请选择患病时间')
+  if (!form.value.consultFlag === undefined)
+    return showToast('请选择是否就诊过')
+  // 保存数据
+  consult.setIllness(form.value)
+  // 下一步
+  router.push('/user/patient?isChange=1')
+}
+
+// 数据回显
+onMounted(() => {
+  if (consult.consult.illnessDesc) {
+    showConfirmDialog({
+      title: '温馨提示',
+      message: '是否恢复您之前填写的病情信息呢？',
+      closeOnPopstate: false
+    }).then(() => {
+      // 确认
+      const { illnessDesc, illnessTime, consultFlag, pictures } =
+        consult.consult
+      form.value = { illnessDesc, illnessTime, consultFlag, pictures }
+      // 图片回显
+      fileList.value = pictures || []
+    })
+  }
+})
 </script>
 
 <template>
@@ -93,21 +136,24 @@ const onDeleteImg = (item: UploaderFileListItem) => {
         <p>此次病情是否去医院就诊过？</p>
         <cp-rdio-btn :options="flagOptions" v-model="form.consultFlag" />
       </div>
+      <div class="illness-img">
+        <van-uploader
+          upload-icon="photo-o"
+          upload-text="上传图片"
+          max-count="9"
+          max-size="5 * 1024 *1024"
+          :after-read="onAfterRead"
+          @delete="onDeleteImg"
+          v-model="fileList"
+        ></van-uploader>
+        <p class="tip" v-if="!fileList.length">
+          上传内容仅医生可见,最多9张图,最大5MB
+        </p>
+      </div>
     </div>
-    <div class="illness-img">
-      <van-uploader
-        upload-icon="photo-o"
-        upload-text="上传图片"
-        max-count="9"
-        max-size="5 * 1024 *1024"
-        :after-read="onAfterRead"
-        @delete="onDeleteImg"
-        v-model="fileList"
-      ></van-uploader>
-      <p class="tip" v-if="!fileList.length">
-        上传内容仅医生可见,最多9张图,最大5MB
-      </p>
-    </div>
+    <van-button :class="{ disabled }" @click="next" type="primary" block round
+      >下一步</van-button
+    >
   </div>
 </template>
 
@@ -167,7 +213,7 @@ const onDeleteImg = (item: UploaderFileListItem) => {
   }
 }
 .illness-img {
-  padding: 16px 0 0 10px;
+  padding-top: 16px;
   margin-bottom: 40px;
 
   display: flex;
@@ -202,6 +248,16 @@ const onDeleteImg = (item: UploaderFileListItem) => {
         color: var(--cp-text3);
       }
     }
+  }
+}
+.van-button {
+  font-size: 16px;
+  margin-bottom: 30px;
+  &.disabled {
+    opacity: 1;
+    background: #fafafa;
+    color: #d9dbde;
+    border: #fafafa;
   }
 }
 </style>

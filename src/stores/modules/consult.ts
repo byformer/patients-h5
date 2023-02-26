@@ -15,19 +15,12 @@ export default defineStore(
       // 3. 修改科室函数
       const setDep = (id: string) => (consult.value.depId = id)
       // 4. 修改病情描述函数
-      const setIllness =
-        (illness: ConsultIllness) =>
-        (
-          illness: Pick<
-            PartialConsult,
-            'illnessDesc' | 'illnessTime' | 'consultFlag' | 'pictures'
-          >
-        ) => {
-          consult.value.illnessDesc = illness.illnessDesc
-          consult.value.illnessTime = illness.illnessTime
-          consult.value.consultFlag = illness.consultFlag
-          consult.value.pictures = illness.pictures
-        }
+      const setIllness = (illness: ConsultIllness) => {
+        consult.value.illnessDesc = illness.illnessDesc
+        consult.value.illnessTime = illness.illnessTime
+        consult.value.consultFlag = illness.consultFlag
+        consult.value.pictures = illness.pictures
+      }
       // 5. 修改患者函数
       const setPatinet = (id: string) => (consult.value.patientId = id)
       // 6. 修改优惠券函数
