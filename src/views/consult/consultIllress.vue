@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ConsultIllness } from '@/types/consuit'
+import { uploadImage } from '@/services/consult'
 import { IllnessTime } from '@/enums'
+import type {
+  UploaderAfterRead,
+  UploaderFileListItem
+} from 'vant/lib/uploader/types'
 // 表单需要依赖的数据
 const form = ref<ConsultIllness>({
   illnessDesc: '',
@@ -21,6 +26,38 @@ const flagOptions = [
   { label: '就诊过', value: 0 },
   { label: '没就诊过', value: 1 }
 ]
+
+// 上传图片相关
+const fileList = ref([])
+const onAfterRead: UploaderAfterRead = (item) => {
+  // 选择一个图就是 item 选择多个图就是item[] ,我们是一个图,而且file可能不存在
+  if (Array.isArray(item)) return
+  if (!item.file) return
+  // 上传图片
+  item.status = 'uploading'
+  item.message = '上传中...'
+  uploadImage(item.file)
+    .then((res) => {
+      // 成功
+      item.status = 'done'
+      item.message = undefined
+      // 展示图片
+      item.url = res.data.url
+      // 存储到form中
+      form.value.pictures?.push(res.data)
+    })
+    .catch(() => {
+      // 失败
+      item.status = 'failed'
+      item.message = '上传失败'
+    })
+}
+const onDeleteImg = (item: UploaderFileListItem) => {
+  // 删除图片
+  form.value.pictures = form.value.pictures?.filter(
+    (pic) => pic.url !== item.url
+  )
+}
 </script>
 
 <template>
@@ -56,6 +93,20 @@ const flagOptions = [
         <p>此次病情是否去医院就诊过？</p>
         <cp-rdio-btn :options="flagOptions" v-model="form.consultFlag" />
       </div>
+    </div>
+    <div class="illness-img">
+      <van-uploader
+        upload-icon="photo-o"
+        upload-text="上传图片"
+        max-count="9"
+        max-size="5 * 1024 *1024"
+        :after-read="onAfterRead"
+        @delete="onDeleteImg"
+        v-model="fileList"
+      ></van-uploader>
+      <p class="tip" v-if="!fileList.length">
+        上传内容仅医生可见,最多9张图,最大5MB
+      </p>
     </div>
   </div>
 </template>
@@ -112,6 +163,44 @@ const flagOptions = [
     > p {
       color: var(--cp-text3);
       padding: 15px 0;
+    }
+  }
+}
+.illness-img {
+  padding: 16px 0 0 10px;
+  margin-bottom: 40px;
+
+  display: flex;
+  align-items: center;
+  .tip {
+    font-size: 12px;
+    color: var(--cp-tip);
+  }
+  ::v-deep() {
+    .van-uploader {
+      &__preview {
+        &-delete {
+          left: 6px;
+          top: 6px;
+          border-radius: 50%;
+          background-color: var(--cp-primary);
+          width: 20px;
+          height: 20px;
+          &-icon {
+            transform: scale(0.9) translate(-22%, 22%);
+          }
+        }
+        &-image {
+          border-radius: 8px;
+          overflow: hidden;
+        }
+      }
+      &__upload {
+        border-radius: 8px;
+      }
+      &__upload-icon {
+        color: var(--cp-text3);
+      }
     }
   }
 }

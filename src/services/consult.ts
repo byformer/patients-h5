@@ -5,7 +5,8 @@ import type {
   DoctorPage,
   PageParams,
   FollowType,
-  TopDep
+  TopDep,
+  Image
 } from '@/types/consuit'
 
 // 文章详情
@@ -21,3 +22,9 @@ export const follwTaget = (id: string | number, type: FollowType = 'doc') => {
 }
 
 export const getAllDep = () => request<TopDep[]>('dep/all')
+// 上传图片
+export const uploadImage = (file: File) => {
+  const fd = new FormData()
+  fd.append('file', file)
+  return request<Image>('upload', 'POST', fd)
+}
