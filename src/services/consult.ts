@@ -8,7 +8,8 @@ import type {
   TopDep,
   Image,
   ConsultOrderPreParams,
-  ConsultOrderPreData
+  ConsultOrderPreData,
+  PartialConsult
 } from '@/types/consuit'
 
 // 文章详情
@@ -34,3 +35,14 @@ export const uploadImage = (file: File) => {
 // 获取生成订单信息
 export const getConsultOrderPre = (params: ConsultOrderPreParams) =>
   request<ConsultOrderPreData>('patient/consult/order/pre', 'GET', params)
+
+// 生成订单
+export const createConsultOrder = (data: PartialConsult) =>
+  request<{ id: string }>('/patient/consult/order', 'POST', data)
+
+// 生成支付地址
+export const getConsultOrderPay = (data: {
+  paymentMethod: 0 | 1
+  orderId: string
+  payCallback: string
+}) => request<{ payUrl: string }>('patient/consult/pay', 'POST', data)
