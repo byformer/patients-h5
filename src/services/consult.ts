@@ -6,7 +6,9 @@ import type {
   PageParams,
   FollowType,
   TopDep,
-  Image
+  Image,
+  ConsultOrderPreParams,
+  ConsultOrderPreData
 } from '@/types/consuit'
 
 // 文章详情
@@ -28,3 +30,7 @@ export const uploadImage = (file: File) => {
   fd.append('file', file)
   return request<Image>('upload', 'POST', fd)
 }
+
+// 获取生成订单信息
+export const getConsultOrderPre = (params: ConsultOrderPreParams) =>
+  request<ConsultOrderPreData>('patient/consult/order/pre', 'GET', params)
