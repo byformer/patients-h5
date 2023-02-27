@@ -4,7 +4,7 @@ import type { ConsultIllness, Image } from '@/types/consuit'
 import { uploadImage } from '@/services/consult'
 
 import { useRouter } from 'vue-router'
-import { timeOptions, flagOptions } from '@/services/contants'
+import { illnessTimeOptions, consultFlagOptions } from '@/services/contants'
 import type {
   UploaderAfterRead,
   UploaderFileListItem
@@ -118,11 +118,11 @@ onMounted(() => {
       <div class="item">
         <p>本次患病多久了？</p>
         <cpradiobtn />
-        <cp-rdio-btn :options="timeOptions" v-model="form.illnessTime" />
+        <cp-rdio-btn :options="illnessTimeOptions" v-model="form.illnessTime" />
       </div>
       <div class="item">
         <p>此次病情是否去医院就诊过？</p>
-        <cp-rdio-btn :options="flagOptions" v-model="form.consultFlag" />
+        <cp-rdio-btn :options="consultFlagOptions" v-model="form.consultFlag" />
       </div>
       <div class="illness-img">
         <van-uploader

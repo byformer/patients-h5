@@ -9,9 +9,11 @@ import type { TimeMessages, Message } from '@/types/room'
 import useStore from '@/stores'
 import { useRoute } from 'vue-router'
 import type { Socket } from 'socket.io-client'
-import { MsgType } from '@/enums'
+import { MsgType, OrderType } from '@/enums'
 // import dayjs from 'dayjs'
 import { ref } from 'vue'
+import type { ConsultOrderItem } from '@/types/consuit'
+import { getConsultOrderDetail } from '@/services/consult'
 const { user } = useStore()
 // 初始化值是当前时间 YYYY-MM-DD HH:mm:ss
 // const initialMsg = ref(true)
@@ -75,15 +77,32 @@ onUnmounted(() => {
       // 将处理好的数据放置list中
       list.value.unshift(...arr)
     })
+    // 等链接成功来监听事件，注册事件，订单状态变更
+    socket.on('statusChange', async () => {
+      const res = await getConsultOrderDetail(route.query.orderId as string)
+      consult.value = res.data
+    })
   })
+// 接诊状态的控制
+// 1.组件挂载后，需要知道当前的接诊状态
+// 2.订单状态变更后，需要只知道已经变化，更新当前接诊状态
+// 3. 依赖状态
+// 3.1 状态栏需要条件渲染，有倒计时
+//  3.2 状态栏 有禁用和启用
+const consult = ref<ConsultOrderItem>()
+onMounted(async () => {
+  const res = await getConsultOrderDetail(route.query.orderId as string)
+  consult.value = res.data
+})
 </script>
 
 <template>
   <div class="room-page">
     <cp-nav-bar title="问诊室" />
-    <RoomStatus />
+    <RoomStatus :status="consult?.status" :countdown="consult?.countdown" />
     <room-message :list="list"></room-message>
-    <room-action />
+    <room-action :disabled="consult?.status !== OrderType.ConsultChat
+    " />
   </div>
 </template>
 
