@@ -31,21 +31,21 @@ const loadPatient = async () => {
 }
 onMounted(() => {
   // 判断是否没有了问诊信息(已经生成了订单，本地清空了)
-  if (
-    !consult.consult.type ||
-    !consult.consult.illnessType ||
-    !consult.consult.depId ||
-    !consult.consult.patientId
-  ) {
-    return showDialog({
-      title: '温馨提示',
-      message:
-        '问诊信息不完成请重新填写，如有未支付的问诊订单可在问诊记录中继续支付',
-      closeOnPopstate: false
-    }).then(() => {
-      router.push('/')
-    })
-  }
+  // if (
+  //   !consult.consult.type ||
+  //   !consult.consult.illnessType ||
+  //   !consult.consult.depId ||
+  //   !consult.consult.patientId
+  // ) {
+  //   return showDialog({
+  //     title: '温馨提示',
+  //     message:
+  //       '问诊信息不完成请重新填写，如有未支付的问诊订单可在问诊记录中继续支付',
+  //     closeOnPopstate: false
+  //   }).then(() => {
+  //     router.push('/')
+  //   })
+  // }
   loadPayInfo()
   loadPatient()
 })
