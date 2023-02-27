@@ -3,22 +3,17 @@ import RoomStatus from './compoenets/roomStatus.vue'
 import RoomAction from './compoenets/roomAction.vue'
 import RoomMessage from './compoenets/roomMessage.vue'
 import { io } from 'socket.io-client'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { baseURL } from '@/utils/request'
 import type { TimeMessages, Message } from '@/types/room'
 import useStore from '@/stores'
 import { useRoute } from 'vue-router'
 import type { Socket } from 'socket.io-client'
 import { MsgType, OrderType } from '@/enums'
-// import dayjs from 'dayjs'
-import { ref } from 'vue'
 import type { ConsultOrderItem } from '@/types/consuit'
 import { getConsultOrderDetail } from '@/services/consult'
 const { user } = useStore()
-// 初始化值是当前时间 YYYY-MM-DD HH:mm:ss
-// const initialMsg = ref(true)
-// const loading = ref(false)
-// const time = ref(dayjs().format('YYY-MM-DD HH:mm:ss'))
+
 const route = useRoute()
 // 1. 建立连接
 //    安装socket.io-lient
@@ -69,10 +64,6 @@ onUnmounted(() => {
           }
         })
         arr.push(...item.items)
-        // item.items.forEach((item: Message) => {
-        //   // eslint-disable-next-line no-undef
-        //   arr.push({ ...item, notScroll: initialMsg.value === false })
-        // })
       })
       // 将处理好的数据放置list中
       list.value.unshift(...arr)
@@ -106,6 +97,14 @@ const sendText = (text: string) => {
     msg: {
       content: text
     }
+  })
+  // 接收消息
+  socket.on('receiveChatMsg', async (msg: Message) => {
+    list.value.push(msg)
+    // 是一个promise，等下一帧在执行（等DOM渲染完成）
+    await nextTick()
+    // 滚动到最低部
+    window.scrollTo(0, document.body.scrollHeight)
   })
 }
 </script>
