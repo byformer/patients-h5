@@ -60,6 +60,7 @@ export type EvaluateDoc = {
 }
 
 export type Message = {
+[x: string]: any
   /** 消息ID */
   id: string
   /** 消息类型 */
@@ -93,6 +94,7 @@ export type Message = {
 
 // 消息分组列表
 export type TimeMessages = {
+[x: string]: any
   /** 分组消息最早时间 */
   createTime: string
   /** 消息数组 */

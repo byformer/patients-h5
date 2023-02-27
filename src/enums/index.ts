@@ -18,7 +18,12 @@ export enum IllnessTime {
   /** 半年以上 */
   More
 }
-
+export enum ConsultTime {
+  Week = 1,
+  Month,
+  HalfYear,
+  More
+}
 // 消息类型
 export enum MsgType {
   // 文字聊天

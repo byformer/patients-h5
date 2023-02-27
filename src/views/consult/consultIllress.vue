@@ -2,9 +2,9 @@
 import { ref, computed, onMounted } from 'vue'
 import type { ConsultIllness, Image } from '@/types/consuit'
 import { uploadImage } from '@/services/consult'
-import { IllnessTime } from '@/enums'
-import { useRouter } from 'vue-router'
 
+import { useRouter } from 'vue-router'
+import { timeOptions, flagOptions } from '@/services/contants'
 import type {
   UploaderAfterRead,
   UploaderFileListItem
@@ -19,18 +19,6 @@ const form = ref<ConsultIllness>({
   consultFlag: undefined,
   pictures: []
 })
-
-const timeOptions = [
-  { label: '一周内', value: IllnessTime.Week },
-  { label: '一月内', value: IllnessTime.Month },
-  { label: '半年内', value: IllnessTime.HalfYear },
-  { label: '大于半年', value: IllnessTime.More }
-]
-
-const flagOptions = [
-  { label: '就诊过', value: 0 },
-  { label: '没就诊过', value: 1 }
-]
 
 // 上传图片相关
 const fileList = ref<Image[]>([])
