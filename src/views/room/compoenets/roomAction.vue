@@ -1,7 +1,19 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 defineProps<{
   disabled: boolean
 }>()
+// 一下代码是把代码提交给父组件
+const emit = defineEmits<{
+  (e: 'send-text', text: string): void
+}>()
+const text = ref('')
+const onSendText = () => {
+  if (text.value) {
+    emit('send-text', text.value)
+    text.value = ''
+  }
+}
 </script>
 
 <template>
@@ -13,6 +25,8 @@ defineProps<{
       :border="false"
       placeholder="问医生"
       autocomplete="off"
+      v-model="text"
+      @keyup.enter="onSendText"
     ></van-field>
     <van-uploader :preview-image="false" :disabled="disabled">
       <cp-icon name="consult-img" />

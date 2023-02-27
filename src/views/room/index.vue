@@ -94,6 +94,20 @@ onMounted(async () => {
   const res = await getConsultOrderDetail(route.query.orderId as string)
   consult.value = res.data
 })
+// 发送文字信息
+// 1. 底部操作栏组件，输入信息后需要传入给父组件（index.vue）组件
+// 由父组件来发送请求
+const sendText = (text: string) => {
+  // 根据后台约定发送消息
+  socket.emit('sendChatMsg', {
+    from: user.user?.id,
+    to: consult.value?.docInfo?.id,
+    msgType: MsgType.MsgText,
+    msg: {
+      content: text
+    }
+  })
+}
 </script>
 
 <template>
@@ -101,8 +115,10 @@ onMounted(async () => {
     <cp-nav-bar title="问诊室" />
     <RoomStatus :status="consult?.status" :countdown="consult?.countdown" />
     <room-message :list="list"></room-message>
-    <room-action :disabled="consult?.status !== OrderType.ConsultChat
-    " />
+    <room-action
+      @send-text="sendText"
+      :disabled="consult?.status !== OrderType.ConsultChat"
+    />
   </div>
 </template>
 
