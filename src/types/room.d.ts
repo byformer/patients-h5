@@ -60,7 +60,7 @@ export type EvaluateDoc = {
 }
 
 export type Message = {
-[x: string]: any
+  [x: string]: any
   /** 消息ID */
   id: string
   /** 消息类型 */
@@ -79,8 +79,9 @@ export type Message = {
   msg: {
     /** 文本内容 */
     content?: string
-    /** 图片对象 */
     picture?: Image
+    /** 图片对象 */
+    pictures?: Image
     /** 问诊记录，患者信息 */
     consultRecord?: Consult & {
       patientInfo: Patient
@@ -90,11 +91,12 @@ export type Message = {
     /** 评价信息 */
     evaluateDoc?: EvaluateDoc
   }
+  notScroll?: boolean
 }
 
 // 消息分组列表
 export type TimeMessages = {
-[x: string]: any
+  [x: string]: any
   /** 分组消息最早时间 */
   createTime: string
   /** 消息数组 */

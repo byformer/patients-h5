@@ -6,6 +6,7 @@ import type { Image } from '@/types/consuit'
 import { showImagePreview } from 'vant'
 import useStore from '@/stores'
 import dayjs from 'dayjs'
+// import { nextTick } from 'vue'
 const { user } = useStore()
 const formatTime = (time: string) => dayjs(time).format('HH:mm')
 defineProps<{
@@ -27,11 +28,25 @@ const onPreview = (pictures?: Image[]) => {
     showImagePreview(pictures.map((item) => item.url))
   }
 }
+// 加载成功
+const loadSuccess = (notScroll?: boolean) => {
+  // nextTick()
+  if (notScroll === true) return
+  window.scrollTo(0, document.body.scrollHeight)
+}
 </script>
 
 <template>
   <template
-    v-for="{ msgType, id, msg, from, createTime, fromAvatar } in list"
+    v-for="{
+      msgType,
+      id,
+      msg,
+      from,
+      createTime,
+      fromAvatar,
+      notScroll
+    } in list"
     :key="id"
   >
     <!-- 病情描述 -->
@@ -81,42 +96,42 @@ const onPreview = (pictures?: Image[]) => {
       <van-image :src="user.user?.avatar" />
     </div>
     <!-- 发送图片 -->
-    <!-- <div class="msg msg-to">
-    <div class="content">
-      <div class="time">20:12</div>
-      <van-image
-        fit="contain"
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
+    <div
+      class="msg msg-to"
+      v-if="msgType === MsgType.MsgImage && from === user.user?.id"
+    >
+      <div class="content">
+        <div class="time">{{ formatTime(createTime) }}</div>
+        <van-image
+          @load="loadSuccess(notScroll)"
+          fit="contain"
+          :src="msg.pictures?.url"
+        />
+      </div>
+      <van-image :src="user.user?.avatar" />
     </div>
-    <van-image
-      src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-    />
-  </div> -->
     <!-- 接收消息 文字-->
     <div
       class="msg msg-from"
       v-if="msgType === MsgType.MsgText && from !== user.user?.id"
     >
-      <van-image :src="fromAvatar" />
+      <van-image @load="loadSuccess(notScroll)" :src="fromAvatar" />
       <div class="content">
         <div class="time">{{ formatTime(createTime) }}</div>
         <div class="pao">{{ msg.content }}</div>
       </div>
     </div>
     <!-- 接收消息- 图片 -->
-    <!-- <div class="msg msg-from">
-    <van-image
-      src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-    />
-    <div class="content">
-      <div class="time">20:12</div>
-      <van-image
-        fit="contain"
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
+    <div
+      class="msg msg-from"
+      v-if="msgType === MsgType.MsgImage && from !== user.user?.id"
+    >
+      <van-image :src="fromAvatar" />
+      <div class="content">
+        <div class="time">{{ formatTime(createTime) }}</div>
+        <van-image @load="loadSuccess" fit="contain" :src="msg.picture?.url" />
+      </div>
     </div>
-  </div> -->
     <!-- 处方消息 -->
     <!-- <div class="msg msg-recipe">
     <div class="content">

@@ -10,8 +10,10 @@ import useStore from '@/stores'
 import { useRoute } from 'vue-router'
 import type { Socket } from 'socket.io-client'
 import { MsgType, OrderType } from '@/enums'
-import type { ConsultOrderItem } from '@/types/consuit'
+import type { ConsultOrderItem, Image } from '@/types/consuit'
 import { getConsultOrderDetail } from '@/services/consult'
+import dayjs from 'dayjs'
+import { showToast } from 'vant'
 const { user } = useStore()
 
 const route = useRoute()
@@ -52,9 +54,9 @@ onUnmounted(() => {
     socket.on('chatMsgList', ({ data }: { data: TimeMessages }) => {
       // 处理消息：分组的时间自己组织一条通用消息，items取出来放后面
       const arr: Message[] = []
-      data.forEach((item: any) => {
+      data.forEach((item: any, i: any) => {
         // 记录消息分组第一组的时间，作为下次获取聊天记录的时间
-        // if (i === 0) time.value = item.createTime
+        if (i === 0) time.value = item.createTime
         arr.push({
           id: item.createTime,
           msgType: MsgType.Notify,
@@ -63,10 +65,25 @@ onUnmounted(() => {
             content: item.createTime
           }
         })
-        arr.push(...item.items)
+        // arr.push(...item.items)
+        item.items.forEach((item: any) => {
+          arr.push({ ...item, notScroll: initiaMsg.value === false })
+        })
       })
       // 将处理好的数据放置list中
       list.value.unshift(...arr)
+      // 关闭加载效果
+      loading.value = false
+      if (!data.length) {
+        showToast('没有聊天记录了 ')
+      }
+      // 第一次需要滚动到最底部
+      nextTick(() => {
+        if (initiaMsg.value) {
+          window.scrollTo(0, document.body.scrollHeight)
+          initiaMsg.value = false
+        }
+      })
     })
     // 等链接成功来监听事件，注册事件，订单状态变更
     socket.on('statusChange', async () => {
@@ -107,15 +124,48 @@ const sendText = (text: string) => {
     window.scrollTo(0, document.body.scrollHeight)
   })
 }
+
+// 发送图片信息
+// 1. 底部操作栏组件，上传图片，成功后传递给父组件
+// 2. 由父组件来发送消息，通过emit发送消息，sendChatMsg
+const sendImage = (img: Image) => {
+  // 根据后台约定发送消息
+  socket.emit('sendChatMsg', {
+    from: user.user?.id,
+    to: consult.value?.docInfo?.id,
+    msgType: MsgType.MsgImage,
+    msg: {
+      pictures: img
+    }
+  })
+}
+
+// 加载更多聊天记录
+// 消息默认滚动到最低部
+// 1. 实现下拉刷新效果
+// 2. 下拉刷新后，发送一个获取聊天就记录的消息给后台
+// 3. 触发聊天记录事件，
+// 3.1  判断如果有数据就继续追加到数组，如果没有数据，轻提示没有数据
+// 3.2  第二次，第三次....不需要滚动到底部
+const initiaMsg = ref(true)
+const loading = ref(false)
+// 初始化值是当前时间 YYYY-MM-DD HH:mm:ss
+const time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+const onRefrsh = () => {
+  socket.emit('getChatMsgList', 20, time.value, consult.value?.id)
+}
 </script>
 
 <template>
   <div class="room-page">
     <cp-nav-bar title="问诊室" />
     <RoomStatus :status="consult?.status" :countdown="consult?.countdown" />
-    <room-message :list="list"></room-message>
+    <van-pull-refresh v-model="loading" @refresh="onRefrsh">
+      <room-message :list="list"></room-message>
+    </van-pull-refresh>
     <room-action
       @send-text="sendText"
+      @send-image="sendImage"
       :disabled="consult?.status !== OrderType.ConsultChat"
     />
   </div>

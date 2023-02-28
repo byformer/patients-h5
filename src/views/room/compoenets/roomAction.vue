@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import { uploadImage } from '@/services/consult'
+import type { UploaderAfterRead } from 'vant/lib/uploader/types'
 import { ref } from 'vue'
+
+import type { Image } from '@/types/consuit'
 defineProps<{
   disabled: boolean
 }>()
-// 一下代码是把代码提交给父组件
+// 以下代码是把代码提交给父组件
 const emit = defineEmits<{
   (e: 'send-text', text: string): void
+  (e: 'send-image', img: Image): void
 }>()
 const text = ref('')
 const onSendText = () => {
@@ -13,6 +18,15 @@ const onSendText = () => {
     emit('send-text', text.value)
     text.value = ''
   }
+}
+// 以下代码实现图片上传和把对象传递给父组件
+const onAfterRead: UploaderAfterRead = async (item) => {
+  if (Array.isArray(item)) return
+  if (!item.file) return
+  // 上传图片
+  const res = await uploadImage(item.file)
+
+  emit('send-image', res.data)
 }
 </script>
 
@@ -28,7 +42,11 @@ const onSendText = () => {
       v-model="text"
       @keyup.enter="onSendText"
     ></van-field>
-    <van-uploader :preview-image="false" :disabled="disabled">
+    <van-uploader
+      :preview-image="false"
+      :disabled="disabled"
+      :after-read="onAfterRead"
+    >
       <cp-icon name="consult-img" />
     </van-uploader>
   </div>
