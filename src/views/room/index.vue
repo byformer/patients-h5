@@ -3,7 +3,7 @@ import RoomStatus from './compoenets/roomStatus.vue'
 import RoomAction from './compoenets/roomAction.vue'
 import RoomMessage from './compoenets/roomMessage.vue'
 import { io } from 'socket.io-client'
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, nextTick, provide } from 'vue'
 import { baseURL } from '@/utils/request'
 import type { TimeMessages, Message } from '@/types/room'
 import useStore from '@/stores'
@@ -158,6 +158,24 @@ const time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 const onRefrsh = () => {
   socket.emit('getChatMsgList', 20, time.value, consult.value?.id)
 }
+
+// 评价
+// 1. 把未评价 和已评价的卡片封装在一个组件中
+// 2. 渲染组件的时候，把消息中的评价信息传入组件
+// 3. 根据是否有评价来展示对应的卡片
+// 3.1 有数据展示
+// 3.2 无数据，绑定表单数据，收集表单数据，提交评价
+// 3.3 评价成功，修改评价消息状态和数据，切换卡片显示
+provide('consult', consult)
+const completeEva = (score: number) => {
+  // 加评价对象只需要一个数据 score
+  const item = list.value.find((item) => item.msgType === MsgType.CardEvaForm)
+  if (item) {
+    item.msg.evaluateDoc = { score }
+    item.msgType = MsgType.CardEva
+  }
+}
+provide('completeEva', completeEva)
 </script>
 
 <template>

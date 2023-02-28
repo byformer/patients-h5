@@ -6,6 +6,7 @@ import { getPrescriptionPic } from '@/services/consult'
 import type { Image } from '@/types/consuit'
 import { showImagePreview, showToast } from 'vant'
 import useStore from '@/stores'
+import EvaluateCard from './evaluateCard.vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 // import { nextTick } from 'vue'
@@ -190,11 +191,20 @@ const buy = (pre?: Prescription) => {
       </div>
     </div>
     <!-- 取消订单 -->
-    <!-- <div class="msg msg-tip msg-tip-cancel">
-    <div class="content">
-      <span>订单取消</span>
+    <div
+      class="msg msg-tip msg-tip-cancel"
+      v-if="msgType === MsgType.NotifyCancel"
+    >
+      <div class="content">
+        <span>{{ msg.content }}</span>
+      </div>
     </div>
-  </div> -->
+    <div
+      class="msg msg-comment"
+      v-if="msgType === MsgType.CardEva || msgType === MsgType.CardEvaForm"
+    >
+      <EvaluateCard :evaluateDoc="msg.evaluateDoc"></EvaluateCard>
+    </div>
   </template>
 </template>
 
