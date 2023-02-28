@@ -9,7 +9,7 @@ import type { ConsultOrderPreData } from '@/types/consuit'
 import type { Patient } from '@/types/user'
 import { getPatientDtial } from '@/services/user'
 import { ref, onMounted } from 'vue'
-import { showToast, showLoadingToast, showDialog } from 'vant'
+import { showToast, showLoadingToast, showConfirmDialog } from 'vant'
 import { onBeforeRouteLeave } from 'vue-router'
 import router from '@/router'
 // 获取订单相关信息
@@ -72,7 +72,7 @@ const submit = async () => {
 // 4. 生成支付地址跳转，调后台的接口
 // 5. 刷新页面的时候，判断问诊记录是否存在，不存在就alert提示，确认之后回到首页
 const onClose = () => {
-  return showDialog({
+  return showConfirmDialog({
     title: '温馨提示',
     message: '取消支付将无法获得医生回复，医生接诊名额有限，是否确认关闭',
     cancelButtonText: '仍要关闭',
