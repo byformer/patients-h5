@@ -80,6 +80,8 @@ onUnmounted(() => {
       // 第一次需要滚动到最底部
       nextTick(() => {
         if (initiaMsg.value) {
+          // 把默认加载到的消息设置为已读
+          socket.emit('updateMsgStatus', arr[arr.length - 1].id)
           window.scrollTo(0, document.body.scrollHeight)
           initiaMsg.value = false
         }
@@ -120,6 +122,8 @@ const sendText = (text: string) => {
     list.value.push(msg)
     // 是一个promise，等下一帧在执行（等DOM渲染完成）
     await nextTick()
+    // 修改消息为已读
+    socket.emit('updateMsgStatus', msg.id)
     // 滚动到最低部
     window.scrollTo(0, document.body.scrollHeight)
   })
