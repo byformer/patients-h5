@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Message } from '@/types/room'
-import { MsgType, ConsultTime } from '@/enums'
+import type { Message, Prescription } from '@/types/room'
+import { MsgType, ConsultTime, PrescriptionStatus } from '@/enums'
 import { consultFlagOptions, illnessTimeOptions } from '@/services/contants'
 import { getPrescriptionPic } from '@/services/consult'
 import type { Image } from '@/types/consuit'
-import { showImagePreview } from 'vant'
+import { showImagePreview, showToast } from 'vant'
 import useStore from '@/stores'
+import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 // import { nextTick } from 'vue'
 const { user } = useStore()
@@ -42,6 +43,18 @@ const showPrescription = async (id?: string) => {
     const res = await getPrescriptionPic(id)
 
     showImagePreview([res.data.url])
+  }
+}
+// 去买药
+const router = useRouter()
+const buy = (pre?: Prescription) => {
+  if (pre) {
+    if (pre.status === PrescriptionStatus.Invalid) return showToast('处方无效')
+    // 未支付没订单
+    if (pre.status === PrescriptionStatus.NotPayment && !pre.orderId)
+      return router.push('/order/pay?id=' + pre.id)
+    // 未支付，有订单或者已支付，去药品订单详情
+    router.push(`/order/${pre.orderId}`)
   }
 }
 </script>
@@ -171,7 +184,9 @@ const showPrescription = async (id?: string) => {
             <div class="num">x{{ med.quantity }}</div>
           </div>
         </div>
-        <div class="foot"><span>购买药品</span></div>
+        <div class="foot">
+          <span @click="buy(msg.prescription)">购买药品</span>
+        </div>
       </div>
     </div>
     <!-- 取消订单 -->
