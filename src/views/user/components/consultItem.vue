@@ -4,7 +4,7 @@ import type { ConsultOrderItem } from '@/types/consuit'
 import { ref, computed } from 'vue'
 import { cancelOrder, deletelOrder } from '@/services/consult'
 import { showFailToast, showSuccessToast } from 'vant'
-
+import { usePreviewPrescription } from '@/composable'
 const props = defineProps<{
   item: ConsultOrderItem
 }>()
@@ -19,6 +19,9 @@ const onSelect = (action: { text: string }, i: number) => {
   // 点击选项
   if (i === i) {
     delteteConsultOrder(props.item)
+  }
+  if (i === 0) {
+    showPrescription(props.item.prescriptionId)
   }
 }
 // 取消订单
@@ -59,6 +62,8 @@ const delteteConsultOrder = async (item: ConsultOrderItem) => {
     deleteLoading.value = false
   }
 }
+// 查看处方
+const { showPrescription } = usePreviewPrescription()
 </script>
 
 <template>

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { Message, Prescription } from '@/types/room'
-import { MsgType, ConsultTime, PrescriptionStatus } from '@/enums'
-import { consultFlagOptions, illnessTimeOptions } from '@/services/contants'
-import { getPrescriptionPic } from '@/services/consult'
+import { MsgType, PrescriptionStatus } from '@/enums'
+
+import { usePreviewPrescription } from '@/composable'
 import type { Image } from '@/types/consuit'
 import { showImagePreview, showToast } from 'vant'
 import useStore from '@/stores'
 import EvaluateCard from './evaluateCard.vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
+import { getIllnessTimeText, getConsultFlagText } from '@/utils/filter'
 // import { nextTick } from 'vue'
 const { user } = useStore()
 const formatTime = (time: string) => dayjs(time).format('HH:mm')
@@ -16,14 +17,6 @@ defineProps<{
   list: Message[]
 }>()
 
-// 获取患病时间文字
-const getIllnessTimeText = (time?: ConsultTime) => {
-  return illnessTimeOptions.find((item: any) => item.value === time)?.label
-}
-// 获取是否就诊文字
-const getConsultFlagText = (flag?: 0 | 1) => {
-  return consultFlagOptions.find((item: any) => item.value === flag)?.label
-}
 // 预览图片
 const onPreview = (pictures?: Image[]) => {
   if (pictures && pictures.length) {
@@ -37,15 +30,8 @@ const loadSuccess = (notScroll?: boolean) => {
   if (notScroll === true) return
   window.scrollTo(0, document.body.scrollHeight)
 }
-
 // 查看处方
-const showPrescription = async (id?: string) => {
-  if (id) {
-    const res = await getPrescriptionPic(id)
-
-    showImagePreview([res.data.url])
-  }
-}
+const { showPrescription } = usePreviewPrescription()
 // 去买药
 const router = useRouter()
 const buy = (pre?: Prescription) => {

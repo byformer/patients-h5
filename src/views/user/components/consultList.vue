@@ -39,7 +39,7 @@ const onload = async () => {
 const onDelete = (id: string) => {
   // const index = list.value.find((item) => item.id === id)
   // list.value.splice(index, 1)
-  list.value = list.value.filter((item) => item.id !== id)
+  list.value = list.value.filter((item) => item.id !== id )
 }
 </script>
 
