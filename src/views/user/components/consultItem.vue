@@ -4,7 +4,7 @@ import type { ConsultOrderItem } from '@/types/consuit'
 import { ref } from 'vue'
 import { deletelOrder } from '@/services/consult'
 import { showFailToast, showSuccessToast } from 'vant'
-import { usePreviewPrescription } from '@/composable'
+import { useDeleteOreder, usePreviewPrescription } from '@/composable'
 import { useCanancelOrder } from '@/composable'
 defineProps<{
   item: ConsultOrderItem
@@ -18,20 +18,24 @@ const { onCancelOrder, loading } = useCanancelOrder()
 const emit = defineEmits<{
   (e: 'on-delete', id: string): void
 }>()
-const deleteLoading = ref(false)
-const delteteConsultOrder = async (item: ConsultOrderItem) => {
-  deleteLoading.value = true
-  try {
-    await deletelOrder(item.id)
-    //  成功，通知父组件删除这条信息，并且提示
-    emit('on-delete', item.id)
-    showSuccessToast('删除成功 ')
-  } catch (error) {
-    showFailToast('删除失败')
-  } finally {
-    deleteLoading.value = false
-  }
-}
+
+const { deleteLoading, delteteConsultOrder } = useDeleteOreder((id) => {
+  emit('on-delete', id)
+})
+// const deleteLoading = ref(false)
+// const delteteConsultOrder = async (item: ConsultOrderItem) => {
+//   deleteLoading.value = true
+//   try {
+//     await deletelOrder(item.id)
+//     //  成功，通知父组件删除这条信息，并且提示
+//     emit('on-delete', item.id)
+//     showSuccessToast('删除成功 ')
+//   } catch (error) {
+//     showFailToast('删除失败')
+//   } finally {
+//     deleteLoading.value = false
+//   }
+// }
 // 查看处方
 const { showPrescription } = usePreviewPrescription()
 </script>

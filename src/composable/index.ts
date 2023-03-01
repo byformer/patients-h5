@@ -3,7 +3,12 @@ import { OrderType } from '@/enums'
 import type { ConsultOrderItem } from '@/types/consuit'
 import type { Knowledge, FollowType } from '@/types/consuit'
 import { showImagePreview, showSuccessToast, showFailToast } from 'vant'
-import { getPrescriptionPic, cancelOrder, follwTaget } from '@/services/consult'
+import {
+  getPrescriptionPic,
+  cancelOrder,
+  follwTaget,
+  deletelOrder
+} from '@/services/consult'
 
 export const useFollow = (type: FollowType = 'doc') => {
   const loading = ref(false)
@@ -52,4 +57,24 @@ export const useCanancelOrder = () => {
       })
   }
   return { onCancelOrder, loading }
+}
+
+// 删除订单，删除成功做的事不确定，可以通过函数来实现
+export const useDeleteOreder = (cb: (id: string) => void) => {
+  const deleteLoading = ref(false)
+  const delteteConsultOrder = async (item: ConsultOrderItem) => {
+    deleteLoading.value = true
+    try {
+      await deletelOrder(item.id)
+      //  成功，通知父组件删除这条信息，并且提示,详情就是跳转页面
+      // emit('on-delete', item.id)
+      showSuccessToast('删除成功 ')
+      cb && cb(item.id)
+    } catch (error) {
+      showFailToast('删除失败')
+    } finally {
+      deleteLoading.value = false
+    }
+  }
+  return { deleteLoading, delteteConsultOrder }
 }
