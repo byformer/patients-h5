@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import {
-  getConsultOrderPre,
-  createConsultOrder,
-  getConsultOrderPay
-} from '@/services/consult'
+import { getConsultOrderPre, createConsultOrder } from '@/services/consult'
 import useStore from '@/stores'
 import type { ConsultOrderPreData } from '@/types/consuit'
 import type { Patient } from '@/types/user'
 import { getPatientDtial } from '@/services/user'
 import { ref, onMounted } from 'vue'
-import { showToast, showLoadingToast, showConfirmDialog } from 'vant'
+import { showToast, showConfirmDialog } from 'vant'
 import { onBeforeRouteLeave } from 'vue-router'
 import router from '@/router'
 // 获取订单相关信息
@@ -54,7 +50,7 @@ const agree = ref(false)
 const loading = ref(false)
 const show = ref(false)
 const orderId = ref('')
-const paymentMethod = ref<0 | 1>()
+// const paymentMethod = ref<0 | 1>()
 const submit = async () => {
   if (!agree.value) return showToast('请勾选我已同意支付协议')
   loading.value = true
@@ -93,18 +89,18 @@ onBeforeRouteLeave(() => {
   // 离开当前路由
   if (orderId.value) return false
 })
-const pay = async () => {
-  if (paymentMethod.value === undefined) return showToast('请选择支付方式')
-  showLoadingToast('跳转支付')
-  if (orderId.value) {
-    const res = await getConsultOrderPay({
-      paymentMethod: paymentMethod.value,
-      orderId: orderId.value,
-      payCallback: 'http://localhost:5173/room'
-    })
-    location.href = res.data.payUrl
-  }
-}
+// const pay = async () => {
+//   if (paymentMethod.value === undefined) return showToast('请选择支付方式')
+//   showLoadingToast('跳转支付')
+//   if (orderId.value) {
+//     const res = await getConsultOrderPay({
+//       paymentMethod: paymentMethod.value,
+//       orderId: orderId.value,
+//       payCallback: 'http://localhost:5173/room'
+//     })
+//     location.href = res.data.payUrl
+//   }
+// }
 </script>
 
 <template>
@@ -152,7 +148,7 @@ const pay = async () => {
       @click="submit"
     />
     <!-- 支付方式 -->
-    <van-action-sheet
+    <!--   <van-action-sheet
       v-model:show="show"
       title="选择支付方式"
       :closeable="false"
@@ -181,7 +177,14 @@ const pay = async () => {
           >
         </div>
       </div>
-    </van-action-sheet>
+    </van-action-sheet> -->
+    <!-- 抽屉组件 -->
+    <cp-pay-sheet
+      :order-id="orderId"
+      v-model:show="show"
+      :on-close="onClose"
+      :actual-payment="payInfo.actualPayment"
+    ></cp-pay-sheet>
   </div>
   <div class="consult-pay-page" v-else>
     <van-skeleton title :row="4" />
@@ -231,27 +234,6 @@ const pay = async () => {
     .van-cell__value {
       font-size: 16px;
       color: var(--cp-price);
-    }
-  }
-}
-.pay-type {
-  .amount {
-    padding: 20px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .btn {
-    padding: 15px;
-  }
-  .van-cell {
-    align-items: center;
-    .cp-icon {
-      margin-right: 10px;
-      font-size: 18px;
-    }
-    .van-checkbox :deep(.van-checkbox__icon) {
-      font-size: 16px;
     }
   }
 }
