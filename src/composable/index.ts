@@ -1,8 +1,10 @@
 import { ref } from 'vue'
-import { follwTaget } from '@/services/consult'
+import { OrderType } from '@/enums'
+import type { ConsultOrderItem } from '@/types/consuit'
 import type { Knowledge, FollowType } from '@/types/consuit'
-import { showImagePreview } from 'vant'
-import { getPrescriptionPic } from '@/services/consult'
+import { showImagePreview, showSuccessToast, showFailToast } from 'vant'
+import { getPrescriptionPic, cancelOrder, follwTaget } from '@/services/consult'
+
 export const useFollow = (type: FollowType = 'doc') => {
   const loading = ref(false)
   const follow = async (item: Knowledge) => {
@@ -28,4 +30,26 @@ export const usePreviewPrescription = () => {
     }
   }
   return { showPrescription }
+}
+
+export const useCanancelOrder = () => {
+  // 取消订单
+  const loading = ref(false)
+  const onCancelOrder = (item: ConsultOrderItem) => {
+    loading.value = true
+    cancelOrder(item.id)
+      .then((res) => {
+        // 修改订单的状态
+        item.status = OrderType.ConsultCancel
+        item.statusValue = '已取消'
+        showSuccessToast('取消成功')
+      })
+      .catch((err) => {
+        showFailToast('取消失败')
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
+  return { onCancelOrder, loading }
 }

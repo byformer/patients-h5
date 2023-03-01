@@ -2,46 +2,16 @@
 import { OrderType } from '@/enums'
 import type { ConsultOrderItem } from '@/types/consuit'
 import { ref } from 'vue'
-import { cancelOrder, deletelOrder } from '@/services/consult'
+import { deletelOrder } from '@/services/consult'
 import { showFailToast, showSuccessToast } from 'vant'
 import { usePreviewPrescription } from '@/composable'
+import { useCanancelOrder } from '@/composable'
 defineProps<{
   item: ConsultOrderItem
 }>()
-// body区域，点击去订单详情
 
-// const showPopover = ref(false)
-// const actions = computed(() => [
-//   { text: '查看处方', disabled: !props.item.prescriptionId },
-//   { text: '删除订单' }
-// ])
-// const onSelect = (action: { text: string }, i: number) => {
-//   // 点击选项
-//   if (i === i) {
-//     delteteConsultOrder(props.item)
-//   }
-//   if (i === 0) {
-//     showPrescription(props.item.prescriptionId)
-//   }
-// }
 // 取消订单
-const loading = ref(false)
-const onCancelOrder = (item: ConsultOrderItem) => {
-  loading.value = true
-  cancelOrder(item.id)
-    .then((res) => {
-      // 修改订单的状态
-      item.status = OrderType.ConsultCancel
-      item.statusValue = '已取消'
-      showSuccessToast('取消成功')
-    })
-    .catch((err) => {
-      showFailToast('取消失败')
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
+const { onCancelOrder, loading } = useCanancelOrder()
 
 // 删除订单
 // 1. 加载效果，api函数，点击调用
