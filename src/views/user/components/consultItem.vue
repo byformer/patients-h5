@@ -2,6 +2,9 @@
 import { OrderType } from '@/enums'
 import type { ConsultOrderItem } from '@/types/consuit'
 import { ref, computed } from 'vue'
+import { cancelOrder, deletelOrder } from '@/services/consult'
+import { showFailToast, showSuccessToast } from 'vant'
+
 const props = defineProps<{
   item: ConsultOrderItem
 }>()
@@ -12,8 +15,49 @@ const actions = computed(() => [
   { text: '查看处方', disabled: !props.item.prescriptionId },
   { text: '删除订单' }
 ])
-const onSelect = () => {
+const onSelect = (action: { text: string }, i: number) => {
   // 点击选项
+  if (i === i) {
+    delteteConsultOrder(props.item)
+  }
+}
+// 取消订单
+const loading = ref(false)
+const onCancelOrder = (item: ConsultOrderItem) => {
+  loading.value = true
+  cancelOrder(item.id)
+    .then((res) => {
+      // 修改订单的状态
+      item.status = OrderType.ConsultCancel
+      item.statusValue = '已取消'
+      showSuccessToast('取消成功')
+    })
+    .catch((err) => {
+      showFailToast('取消失败')
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+// 删除订单
+// 1. 加载效果，api函数，点击调用
+const emit = defineEmits<{
+  (e: 'on-delete', id: string): void
+}>()
+const deleteLoading = ref(false)
+const delteteConsultOrder = async (item: ConsultOrderItem) => {
+  deleteLoading.value = true
+  try {
+    await deletelOrder(item.id)
+    //  成功，通知父组件删除这条信息，并且提示
+    emit('on-delete', item.id)
+    showSuccessToast('删除成功 ')
+  } catch (error) {
+    showFailToast('删除失败')
+  } finally {
+    deleteLoading.value = false
+  }
 }
 </script>
 
@@ -45,7 +89,15 @@ const onSelect = () => {
       </div>
     </div>
     <div class="foot" v-if="item.status === OrderType.ConsultPay">
-      <van-button class="gray" plain size="small" round>取消问诊</van-button>
+      <van-button
+        class="gray"
+        plain
+        size="small"
+        round
+        :loading="loading"
+        @click="onCancelOrder(item)"
+        >取消问诊</van-button
+      >
       <van-button
         type="primary"
         plain
@@ -56,7 +108,15 @@ const onSelect = () => {
       >
     </div>
     <div class="foot" v-if="item.status === OrderType.ConsultWait">
-      <van-button class="gray" plain size="small" round>取消问诊</van-button>
+      <van-button
+        class="gray"
+        plain
+        size="small"
+        round
+        :loading="loading"
+        @click="onCancelOrder(item)"
+        >取消问诊</van-button
+      >
       <van-button
         type="primary"
         plain
@@ -116,7 +176,15 @@ const onSelect = () => {
       </van-button>
     </div>
     <div class="foot" v-if="item.status === OrderType.ConsultCancel">
-      <van-button class="gray" plain size="small" round>删除订单</van-button>
+      <van-button
+        class="gray"
+        plain
+        size="small"
+        round
+        :loading="deleteLoading"
+        @click="delteteConsultOrder(item)"
+        >删除订单</van-button
+      >
       <van-button type="primary" plain size="small" round to="/"
         >咨询其他医生</van-button
       >
