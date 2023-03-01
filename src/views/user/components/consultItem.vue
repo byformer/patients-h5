@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import { OrderType } from '@/enums'
 import type { ConsultOrderItem } from '@/types/consuit'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { cancelOrder, deletelOrder } from '@/services/consult'
 import { showFailToast, showSuccessToast } from 'vant'
 import { usePreviewPrescription } from '@/composable'
-const props = defineProps<{
+defineProps<{
   item: ConsultOrderItem
 }>()
 // body区域，点击去订单详情
 
-const showPopover = ref(false)
-const actions = computed(() => [
-  { text: '查看处方', disabled: !props.item.prescriptionId },
-  { text: '删除订单' }
-])
-const onSelect = (action: { text: string }, i: number) => {
-  // 点击选项
-  if (i === i) {
-    delteteConsultOrder(props.item)
-  }
-  if (i === 0) {
-    showPrescription(props.item.prescriptionId)
-  }
-}
+// const showPopover = ref(false)
+// const actions = computed(() => [
+//   { text: '查看处方', disabled: !props.item.prescriptionId },
+//   { text: '删除订单' }
+// ])
+// const onSelect = (action: { text: string }, i: number) => {
+//   // 点击选项
+//   if (i === i) {
+//     delteteConsultOrder(props.item)
+//   }
+//   if (i === 0) {
+//     showPrescription(props.item.prescriptionId)
+//   }
+// }
 // 取消订单
 const loading = ref(false)
 const onCancelOrder = (item: ConsultOrderItem) => {
@@ -138,6 +138,7 @@ const { showPrescription } = usePreviewPrescription()
         size="small"
         round
         v-if="item.prescriptionId"
+        @click="showPrescription(item.prescriptionId)"
         >查看处方</van-button
       >
       <van-button
@@ -149,17 +150,14 @@ const { showPrescription } = usePreviewPrescription()
         >继续沟通</van-button
       >
     </div>
+
     <div class="foot" v-if="item.status === OrderType.ConsultComplete">
-      <div class="more">
-        <van-popover
-          placement="top-start"
-          v-model:show="showPopover"
-          :actions="actions"
-          @select="onSelect"
-        >
-          <template #reference> 更多 </template>
-        </van-popover>
-      </div>
+      <cp-consult-more
+        :disabled="!item.prescriptionId"
+        @on-delete="delteteConsultOrder(item)"
+        @on-preview="showPrescription(item.prescriptionId)"
+      >
+      </cp-consult-more>
       <van-button
         class="gray"
         plain
@@ -257,11 +255,6 @@ const { showPrescription } = usePreviewPrescription()
         color: var(--cp-text3);
         background-color: var(--cp-bg);
       }
-    }
-    .more {
-      color: var(--cp-tag);
-      flex: 1;
-      font-size: 13px;
     }
   }
 }
