@@ -5,10 +5,18 @@ import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { VantResolver } from 'unplugin-vue-components/resolvers'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import { createHtmlPlugin } from 'vite-plugin-html'
+import { viteMockServe } from 'vite-plugin-mock'
+
 import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    createHtmlPlugin(),
+    viteMockServe({
+      mockPath: './src/mock',
+      localEnabled: true
+    }),
     vue({
       reactivityTransform: true
     }),

@@ -193,7 +193,7 @@ watch(copied, () => {
       :actual-payment="item.actualPayment"
       :order-id="item.id"
       v-model:show="show"
-      pay-callback="http://localhost:5173/room"
+      pay-callback="/room"
     ></cp-pay-sheet>
   </div>
   <!-- 待支付，倒计时提示 -->

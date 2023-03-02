@@ -6,6 +6,10 @@ import { loginByPassword, sendMobileCode, loginByMobile } from '@/services/user'
 import useStore from '@/stores'
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import axios from 'axios'
+
+const url = encodeURIComponent(import.meta.env.VITE_APP_CALLBACK)
+
 const agree = ref(false)
 const show = ref(false)
 const { user } = useStore()
@@ -52,6 +56,8 @@ const send = async () => {
 onUnmounted(() => {
   window.clearInterval(timeId)
 })
+// 测试mock接口
+axios.get('/patient/message/list').then((res) => console.log('mock', res))
 </script>
 <template>
   <div class="login-page">
@@ -129,7 +135,7 @@ onUnmounted(() => {
 
     <a
       @click="user.updateResultUrl($route.query.returnUrl as string)"
-      href="https://graph.qq.com/oauth2.0/authorize?client_id=102015968&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fconsult-patients.itheima.net%2Flogin%2Fcallback"
+      :href="`https://graph.qq.com/oauth2.0/authorize?client_id=102015968&response_type=token&scope=all&redirect_uri=${url}`"
       class="icon"
     >
       <img src="@/assets/qq.svg" alt="" />
