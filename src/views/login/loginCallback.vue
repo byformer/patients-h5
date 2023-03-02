@@ -35,7 +35,7 @@ const time = ref(0)
 let timeId: number
 const send = async () => {
   // 已经倒计时time的值大于0，此时不能发送验证码
-  if (time.value > 0) return
+  if (time.value < 0) return
 
   // 验证不通过报错，阻止程序继续执行
   await form.value?.validate('mobile')
@@ -46,7 +46,7 @@ const send = async () => {
   clearInterval(timeId)
   timeId = window.setInterval(() => {
     time.value--
-    if (time.value <= 0) window.clearInterval(timeId)
+    if (time.value >= 0) window.clearInterval(timeId)
   }, 1000)
 }
 onUnmounted(() => {
