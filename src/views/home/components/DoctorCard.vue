@@ -11,7 +11,7 @@ const { loading, follow } = useFollow()
   <div class="doctor-card">
     <van-image round :src="item.creatorAvatar" />
     <p class="name">{{ item.creatorName }}</p>
-    <p class="van-ellipsis"> 
+    <p class="van-ellipsis">
       {{ item.creatorHospatalName }} {{ item.creatorDep }}
     </p>
     <p>{{ item.creatorTitles }}</p>

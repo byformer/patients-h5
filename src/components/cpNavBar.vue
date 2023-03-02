@@ -11,7 +11,6 @@ const router = useRouter()
 const onClickLeft = () => {
   if (props.back) return props.back()
 
-
   // 实现返回
   //   如果有上一个页面的记录，可以执行back返回
   // 没有记录跳转首页

@@ -93,5 +93,5 @@ export const useOrderDetail = (id: string) => {
       loading.value = false
     }
   })
-  return { loading, order  }
+  return { loading, order }
 }

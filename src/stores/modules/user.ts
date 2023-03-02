@@ -15,7 +15,9 @@ export default defineStore(
     const delUser = () => {
       user.value = undefined
     }
-    return { user, setUser, delUser }
+    const returnUrl = ref('')
+    const updateResultUrl = (url: string) => (returnUrl.value = url)
+    return { user, setUser, delUser, returnUrl, updateResultUrl }
   },
   {
     persist: true

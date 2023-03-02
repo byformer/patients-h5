@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Login">
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, onMounted } from 'vue'
 import { mobileRules, passwordeRules, codeRules } from '@/utils/rules'
 import { showToast, showSuccessToast, type FormInstance } from 'vant'
 import { loginByPassword, sendMobileCode, loginByMobile } from '@/services/user'
@@ -30,7 +30,7 @@ const login = async () => {
 
 // 短信登录界面
 const isPass = ref(true)
-const form = ref<FormInstance>()
+const form = ref<FormInstance | null>(null)
 const time = ref(0)
 let timeId: number
 const send = async () => {
@@ -126,9 +126,14 @@ onUnmounted(() => {
   <!-- 底部 -->
   <div class="login-other">
     <van-divider>第三方登录</van-divider>
-    <div class="icon">
+
+    <a
+      @click="user.updateResultUrl($route.query.returnUrl as string)"
+      href="https://graph.qq.com/oauth2.0/authorize?client_id=102015968&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fconsult-patients.itheima.net%2Flogin%2Fcallback"
+      class="icon"
+    >
       <img src="@/assets/qq.svg" alt="" />
-    </div>
+    </a>
   </div>
 </template>
 <style lang="scss" scoped>

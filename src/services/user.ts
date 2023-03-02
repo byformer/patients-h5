@@ -29,3 +29,12 @@ export const deletePatient = (id: string) =>
 
 export const getPatientDtial = (id: string) =>
   request<Patient>(`patient/info/${id}`)
+// qq登录
+export const loginByQQ = (openId: string) =>
+  request<User>('/login/thirdparty', 'POST', { openId, source: 'qq' })
+// 绑定
+export const bindMobile = (data: {
+  mobile: string
+  code: string
+  openId: string
+}) => request<User>('/login/binding', 'POST', data)
