@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { OrderType } from '@/enums'
 import type { ConsultOrderItem } from '@/types/consuit'
 import type { Knowledge, FollowType } from '@/types/consuit'
@@ -9,6 +9,8 @@ import {
   follwTaget,
   deletelOrder
 } from '@/services/consult'
+import type { OrderDetail } from '@/types/order'
+import { getMedicalOrderDetail } from '@/services/order'
 
 export const useFollow = (type: FollowType = 'doc') => {
   const loading = ref(false)
@@ -77,4 +79,19 @@ export const useDeleteOreder = (cb: (id: string) => void) => {
     }
   }
   return { deleteLoading, delteteConsultOrder }
+}
+
+export const useOrderDetail = (id: string) => {
+  const order = ref<OrderDetail>()
+  const loading = ref(false)
+  onMounted(async () => {
+    loading.value = true
+    try {
+      const res = await getMedicalOrderDetail(id)
+      order.value = res.data
+    } finally {
+      loading.value = false
+    }
+  })
+  return { loading, order  }
 }

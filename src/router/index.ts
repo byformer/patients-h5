@@ -84,6 +84,16 @@ const router = createRouter({
       path: '/order/pay',
       component: () => import('@/views/order/orderPay.vue'),
       meta: { title: '药品支付' }
+    },
+    {
+      path: '/order/pay/result',
+      component: () => import('@/views/order/orderPayResult.vue'),
+      meta: { title: '药品支付结果' }
+    },
+    {
+      path: '/order/:id',
+      component: () => import('@/views/order/OrderDetail.vue'),
+      meta: { title: '药品订单详情' }
     }
   ]
 })

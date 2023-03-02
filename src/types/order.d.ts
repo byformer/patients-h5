@@ -1,5 +1,5 @@
 import type { Medical } from './room'
-
+import type { OrderType } from '@/enums'
 export type OrderPre = {
   /** 处方ID */
   id: string
@@ -41,4 +41,50 @@ export type AddressItem = Address & {
   isDefault: 0 | 1
   /** 邮政编码 */
   postalCode: string
+}
+
+export type OrderDetail = {
+  /** 药品订单ID */
+  id: string
+  /** 药品订单编号 */
+  orderNo: string
+  /** 订单类型 */
+  type: 4
+  /** 创建时间 */
+  createTime: string
+  /** 处方ID */
+  prescriptionId: string
+  /** 订单状态 */
+  status: OrderType
+  /** 订单状态说明 */
+  statusValue: string
+  /** 药品清单 */
+  medicines: Medical[]
+  /** 支付倒计时时间 */
+  countDown: number
+  /** 收货地址 */
+  addressInfo: Address
+  /** 物流信息 */
+  expressInfo: {
+    /** 物流最新位置 */
+    content: string
+    /** 物流最新时间 */
+    time: string
+  }
+  /** 支付时间 */
+  payTime: string
+  /** 支付方式 */
+  paymentMethod?: 0 | 1
+  /** 支付金额 */
+  payment: number
+  /** 积分抵扣 */
+  pointDeduction: number
+  /** 优惠券抵扣 */
+  couponDeduction: number
+  /** 邮费 */
+  expressFee: number
+  /** 实付金额 */
+  actualPayment: number
+  /** 问诊室ID */
+  roomId: string
 }
